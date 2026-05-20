@@ -1,0 +1,28 @@
+# React & Node Packages
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/npm-debug.log*
+
+# Laravel Backend Packages & Cache
+backend/vendor/
+backend/.env
+backend/bootstrap/cache/*
+backend/storage/*.key
+backend/storage/framework/cache/data/*
+backend/storage/framework/sessions/*
+backend/storage/framework/testing/*
+backend/storage/framework/views/*
+backend/storage/logs/*
+backend/public/storage
+
+# System Logs & Caches
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.log
