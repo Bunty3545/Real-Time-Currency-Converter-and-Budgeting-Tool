@@ -37,13 +37,13 @@ const AnimatedCounter = ({ value, prefix = "", suffix = "", duration = 800 }) =>
 export default function DashboardStats({ stats }) {
     const { formatCurrency, baseCurrency } = useCurrency();
     
-    const balance = stats?.balance || 0;
-    const income = stats?.total_income || 0;
-    const expense = stats?.total_expense || 0;
+    const balance = stats?.balance !== undefined ? stats.balance : (stats?.net_balance || 0);
+    const income = stats?.total_income !== undefined ? stats.total_income : (stats?.monthly_income || 0);
+    const expense = stats?.total_expense !== undefined ? stats.total_expense : (stats?.monthly_expense || 0);
     
     // Calculate Budget Used %
-    const budgetLimit = stats?.budget ? parseFloat(stats.budget.total_budget) : 0;
-    const budgetPercent = budgetLimit > 0 ? Math.round((expense / budgetLimit) * 100) : 0;
+    const budgetLimit = stats?.monthly_budget !== undefined ? stats.monthly_budget : (stats?.budget ? parseFloat(stats.budget.total_budget) : 0);
+    const budgetPercent = stats?.budget_percentage !== undefined ? stats.budget_percentage : (budgetLimit > 0 ? Math.round((expense / budgetLimit) * 100) : 0);
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">

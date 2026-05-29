@@ -57,9 +57,13 @@ class TransactionController extends Controller
 
         $transaction = $request->user()->transactions()->create($validated);
 
+        // Clear dashboard cache so calculations update instantly
+        $month = substr($validated['transaction_date'], 0, 7);
+        $year = substr($validated['transaction_date'], 0, 4);
+        \Illuminate\Support\Facades\Cache::forget("user_{$request->user()->id}_dashboard_{$month}_{$year}");
+
         // Budget Cap Evaluation Trigger
         if ($validated['type'] === 'expense') {
-            $month = substr($validated['transaction_date'], 0, 7);
             \App\Http\Controllers\BudgetAlertController::checkThreshold($request->user(), $month);
         }
 
@@ -81,11 +85,22 @@ class TransactionController extends Controller
             'transaction_date' => 'date'
         ]);
 
+        $oldMonth = substr($transaction->transaction_date, 0, 7);
+        $oldYear = substr($transaction->transaction_date, 0, 4);
+
         $transaction->update($validated);
 
+        $newMonth = substr($transaction->transaction_date, 0, 7);
+        $newYear = substr($transaction->transaction_date, 0, 4);
+
+        // Invalidate dashboard cache
+        \Illuminate\Support\Facades\Cache::forget("user_{$request->user()->id}_dashboard_{$oldMonth}_{$oldYear}");
+        if ($oldMonth !== $newMonth || $oldYear !== $newYear) {
+            \Illuminate\Support\Facades\Cache::forget("user_{$request->user()->id}_dashboard_{$newMonth}_{$newYear}");
+        }
+
         // Budget Cap Evaluation Trigger
-        $month = substr($transaction->transaction_date, 0, 7);
-        \App\Http\Controllers\BudgetAlertController::checkThreshold($request->user(), $month);
+        \App\Http\Controllers\BudgetAlertController::checkThreshold($request->user(), $newMonth);
 
         return response()->json($transaction);
     }
@@ -97,7 +112,11 @@ class TransactionController extends Controller
         }
 
         $month = substr($transaction->transaction_date, 0, 7);
+        $year = substr($transaction->transaction_date, 0, 4);
         $transaction->delete();
+
+        // Invalidate dashboard cache
+        \Illuminate\Support\Facades\Cache::forget("user_{$request->user()->id}_dashboard_{$month}_{$year}");
 
         // Budget Cap Evaluation Trigger
         \App\Http\Controllers\BudgetAlertController::checkThreshold($request->user(), $month);

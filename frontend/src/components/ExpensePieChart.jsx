@@ -11,7 +11,7 @@ export default function ExpensePieChart({ stats, allTransactions = [] }) {
     const [modalCategory, setModalCategory] = useState(null);
 
     // 1. Compile category breakdown dataset
-    const breakdown = stats?.category_breakdown || {};
+    const breakdown = stats?.category_breakdown || stats?.category_expenses || {};
     const data = Object.keys(breakdown).map((cat, idx) => ({
         name: cat,
         value: parseFloat(breakdown[cat] || 0)
